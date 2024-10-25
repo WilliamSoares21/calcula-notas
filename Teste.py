@@ -18,6 +18,7 @@ class PrincipalRAD:
         self.txtNome = tk.Entry(bd=3)
         self.txtNota1 = tk.Entry()
         self.txtNota2 = tk.Entry()
+        self.selected_item = None
 
         # Botões
         self.btnCalcular = tk.Button(win, text='Calcular Média', command=self.fCalcularMedia)
