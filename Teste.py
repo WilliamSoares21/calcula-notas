@@ -150,13 +150,23 @@ class PrincipalRAD:
             nota2 = float(self.txtNota2.get())
             media, situacao = self.fVerificarSituacao(nota1, nota2)
 
-            self.treeMedias.insert('', 'end',
-                                   iid=self.iid,
-                                   values=(nome,
-                                           str(nota1),
-                                           str(nota2),
-                                           str(media),
-                                           situacao))
+            if self.selected_item:
+                #Atualiza os dados do item selecionado
+                self.treeMedias.item(self.selected_item,
+                                     values=(nome,
+                                             str(nota1),
+                                             str(nota2),
+                                             str(media),
+                                             situacao))
+                self.selected_item = None # Reseta o item selecionado
+            else:
+                self.treeMedias.insert('', 'end',
+                                    iid=self.iid,
+                                    values=(nome,
+                                            str(nota1),
+                                            str(nota2),
+                                            str(media),
+                                            situacao))
 
             self.iid += 1
             self.id += 1
@@ -172,8 +182,8 @@ class PrincipalRAD:
     # -----------------------------------------------------------------------------
     def fAlterar(self):
         try:
-            selected_item = self.treeMedias.selection()[0]
-            values = self.treeMedias.item(selected_item)['values']
+            self.selected_item = self.treeMedias.selection()[0] #Armazena o item selecionado
+            values = self.treeMedias.item(self.selected_item)['values']
             self.txtNome.delete(0, 'end')
             self.txtNome.insert(0, values[0])
             self.txtNota1.delete(0, 'end')
@@ -181,7 +191,8 @@ class PrincipalRAD:
             self.txtNota2.delete(0, 'end')
             self.txtNota2.insert(0, values[2])
             # Lógica para atualizar os dados após alteração
-            self.fSalvarDados()
+            #self.fSalvarDados()
+
         except IndexError:
             print("Nenhum aluno selecionado.")
 
