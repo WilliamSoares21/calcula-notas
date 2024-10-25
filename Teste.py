@@ -1,20 +1,16 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Aug 19 16:54:32 2020
-
-
 """
 
 import tkinter as tk
 from tkinter import ttk
 import pandas as pd
-import os # Importa a biblioteca os para manipulação de arquivos / verifica se o arquivo existe
-
-
+import os  # Importa a biblioteca os para manipulação de arquivos / verifica se o arquivo existe
 
 class PrincipalRAD:
     def __init__(self, win):
-        # componentes
+        # Componentes
         self.lblNome = tk.Label(win, text='Nome do Aluno:')
         self.lblNota1 = tk.Label(win, text='Nota 1')
         self.lblNota2 = tk.Label(win, text='Nota 2')
@@ -22,7 +18,17 @@ class PrincipalRAD:
         self.txtNome = tk.Entry(bd=3)
         self.txtNota1 = tk.Entry()
         self.txtNota2 = tk.Entry()
+
+        # Botões
         self.btnCalcular = tk.Button(win, text='Calcular Média', command=self.fCalcularMedia)
+        self.btnAlterar = tk.Button(win, text="Alterar Dados", command=self.fAlterar)
+        self.btnExcluir = tk.Button(win, text="Excluir Dados", command=self.fExcluir)
+
+        # Posicionamento dos botões
+        self.btnCalcular.place(x=100, y=200)
+        self.btnAlterar.place(x=200, y=200)  
+        self.btnExcluir.place(x=300, y=200)
+
         # ----- Componente TreeView --------------------------------------------
         self.dadosColunas = ("Aluno", "Nota1", "Nota2", "Média", "Situação")
 
@@ -35,7 +41,6 @@ class PrincipalRAD:
                                         command=self.treeMedias.yview)
 
         self.verscrlbar.pack(side='right', fill='x')
-
         self.treeMedias.configure(yscrollcommand=self.verscrlbar.set)
 
         self.treeMedias.heading("Aluno", text="Aluno")
@@ -53,7 +58,7 @@ class PrincipalRAD:
         self.treeMedias.pack(padx=10, pady=10)
 
         # ---------------------------------------------------------------------
-        # posicionamento dos componentes na janela
+        # Posicionamento dos componentes na janela
         # ---------------------------------------------------------------------
         self.lblNome.place(x=100, y=50)
         self.txtNome.place(x=200, y=50)
@@ -63,8 +68,6 @@ class PrincipalRAD:
 
         self.lblNota2.place(x=100, y=150)
         self.txtNota2.place(x=200, y=150)
-
-        self.btnCalcular.place(x=100, y=200)
 
         self.treeMedias.place(x=100, y=300)
         self.verscrlbar.place(x=805, y=300, height=225)
@@ -76,9 +79,7 @@ class PrincipalRAD:
 
     # -----------------------------------------------------------------------------
     def carregarDadosIniciais(self):
-        #Define o caminho do arquivo CSV para carregar os dados
         fsave = 'C:/Users/Daft/OneDrive/Área de Trabalho/PYTHON ESTACIO/PlanilhaAlunos.csv'
-        #Verifica se o arquivo CSV existe
         if not os.path.exists(fsave):         
             print('Arquivo não encontrado')
             return  
@@ -105,13 +106,11 @@ class PrincipalRAD:
                                             media,
                                             situacao))
 
-                self.iid = self.iid + 1
-                self.id = self.id + 1
+                self.iid += 1
+                self.id += 1
         except Exception as e:  
-            print(f'Erro ao carreagar os dados: {e}')
+            print(f'Erro ao carregar os dados: {e}')
 
-    # -----------------------------------------------------------------------------
-    # Salvar dados para uma planilha excel
     # -----------------------------------------------------------------------------
     def fSalvarDados(self):
         try:
@@ -126,28 +125,12 @@ class PrincipalRAD:
                 dados.append(lstDados)
 
             df = pd.DataFrame(data=dados, columns=self.dadosColunas)
-            df.to_csv(fsave, index=False) #Salva o DataFrame em um arquivo CSV
+            df.to_csv(fsave, index=False)  # Salva o DataFrame em um arquivo CSV
             print("Dados Salvos")
 
         except Exception as e:
             print(f'Não foi possível salvar os dados {e}')
-         #   planilha = pd.ExcelWriter(fsave)
 
-         #   df.to_excel(planilha, 'Inconsistencias', index=False)
-
-        #   planilha.save()
-
-        '''    writer = pd.ExcelWriter('C:/temp/PlanilhaAlunos.xlsx')
-            df.to_excel(writer, 'Plan1', index=False)
-            writer.save()
-            writer.close()
-            print('Dados salvos')
-        '''
-        
-
-    # -----------------------------------------------------------------------------
-
-    # calcula a média e verifica qual é a situação do aluno
     # -----------------------------------------------------------------------------
     def fVerificarSituacao(self, nota1, nota2):
         media = (nota1 + nota2) / 2
@@ -157,11 +140,8 @@ class PrincipalRAD:
             situacao = 'Em Recuperação'
         else:
             situacao = 'Reprovado'
-
         return media, situacao
 
-    # -----------------------------------------------------------------------------
-    # Imprime os dados do aluno
     # -----------------------------------------------------------------------------
     def fCalcularMedia(self):
         try:
@@ -178,8 +158,8 @@ class PrincipalRAD:
                                            str(media),
                                            situacao))
 
-            self.iid = self.iid + 1
-            self.id = self.id + 1
+            self.iid += 1
+            self.id += 1
 
             self.fSalvarDados()
         except ValueError:
@@ -189,11 +169,33 @@ class PrincipalRAD:
             self.txtNota1.delete(0, 'end')
             self.txtNota2.delete(0, 'end')
 
+    # -----------------------------------------------------------------------------
+    def fAlterar(self):
+        try:
+            selected_item = self.treeMedias.selection()[0]
+            values = self.treeMedias.item(selected_item)['values']
+            self.txtNome.delete(0, 'end')
+            self.txtNome.insert(0, values[0])
+            self.txtNota1.delete(0, 'end')
+            self.txtNota1.insert(0, values[1])
+            self.txtNota2.delete(0, 'end')
+            self.txtNota2.insert(0, values[2])
+            # Lógica para atualizar os dados após alteração
+            self.fSalvarDados()
+        except IndexError:
+            print("Nenhum aluno selecionado.")
 
-# -----------------------------------------------------------------------------
+    def fExcluir(self):
+        try:
+            selected_item = self.treeMedias.selection()[0]
+            self.treeMedias.delete(selected_item)
+            self.fSalvarDados()
+        except IndexError:
+            print("Nenhum aluno selecionado.")
+
+# ----------------------------------------------------------------------------- 
 # Programa Principal
-# -----------------------------------------------------------------------------
-
+# ----------------------------------------------------------------------------- 
 janela = tk.Tk()
 principal = PrincipalRAD(janela)
 janela.title('Bem Vindo ao RAD')
